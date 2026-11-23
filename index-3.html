@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0c0e">
+  <title>AURA QR — Scan. Create. Connect.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#090a0c; --surface:#111316; --surface-2:#171a1e; --surface-3:#20242a;
+      --line:rgba(255,255,255,.085); --text:#f3f1eb; --muted:#92969d;
+      --gold:#c9a96e; --gold-bright:#e5c88f; --danger:#e07878;
+      --radius:22px; --shadow:0 24px 70px rgba(0,0,0,.38);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,rgba(201,169,110,.105),transparent 38%),var(--bg);color:var(--text);font-family:"DM Sans",sans-serif}
+    button,input,textarea{font:inherit}
+    button{cursor:pointer}
+    .shell{width:min(100% - 36px,1050px);margin:0 auto;padding:30px 0 54px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:34px}
+    .brand{display:flex;align-items:center;gap:13px}
+    .logo{width:46px;height:46px;display:grid;place-items:center;border:1px solid rgba(201,169,110,.38);border-radius:15px;background:linear-gradient(145deg,#24211b,#111214);box-shadow:0 8px 26px rgba(201,169,110,.09)}
+    .brand-name{font:800 17px "Manrope",sans-serif;letter-spacing:.19em}
+    .brand-tag{font-size:10px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-top:4px}
+    .status{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+    .status-dot{width:7px;height:7px;border-radius:50%;background:#80b99a;box-shadow:0 0 12px #80b99a66}
+    .hero{margin:0 0 25px}
+    .eyebrow{font-size:10px;letter-spacing:.23em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:11px}
+    h1{font:700 clamp(29px,5vw,43px)/1.12 "Manrope",sans-serif;letter-spacing:-.045em;margin:0}
+    .hero p{color:var(--muted);font-size:14px;line-height:1.7;margin:12px 0 0;max-width:560px}
+    .app-card{background:linear-gradient(145deg,rgba(255,255,255,.025),transparent 42%),var(--surface);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}
+    .tabs{display:flex;gap:7px;padding:12px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.012)}
+    .tab{flex:1;border:1px solid transparent;background:transparent;color:var(--muted);padding:13px 12px;border-radius:13px;font-size:13px;font-weight:600;transition:.2s}
+    .tab:hover{color:var(--text);background:rgba(255,255,255,.035)}
+    .tab.active{color:var(--gold-bright);background:rgba(201,169,110,.105);border-color:rgba(201,169,110,.2)}
+    .tab svg{vertical-align:-3px;margin-right:7px}
+    .panel{display:none;padding:clamp(18px,4vw,34px)}
+    .panel.active{display:block}
+    .section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:22px}
+    h2{font:700 20px "Manrope",sans-serif;letter-spacing:-.025em;margin:0}
+    .sub{font-size:12px;color:var(--muted);margin:7px 0 0;line-height:1.6}
+    .camera-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(230px,.8fr);gap:20px}
+    .scanner-wrap{background:#070809;border:1px solid var(--line);border-radius:20px;min-height:320px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
+    #reader{width:100%;max-width:100%;color:var(--muted)}
+    #reader video{border-radius:12px;object-fit:cover}
+    #reader__dashboard_section_csr button,#reader__dashboard_section_swaplink{display:none!important}
+    .scan-placeholder{text-align:center;padding:35px 20px;max-width:320px}
+    .scan-placeholder .scan-icon{width:58px;height:58px;border:1px solid rgba(201,169,110,.3);border-radius:18px;display:grid;place-items:center;margin:0 auto 15px;color:var(--gold)}
+    .scan-placeholder strong{display:block;font:600 14px "Manrope",sans-serif}
+    .scan-placeholder span{display:block;color:var(--muted);font-size:12px;line-height:1.6;margin-top:8px}
+    .side-card{border:1px solid var(--line);background:var(--surface-2);border-radius:19px;padding:20px;display:flex;flex-direction:column;gap:15px}
+    .side-card h3{font:600 13px "Manrope",sans-serif;margin:0}
+    .side-card p{font-size:12px;color:var(--muted);line-height:1.65;margin:0}
+    .button-row{display:flex;gap:9px;flex-wrap:wrap}
+    .btn{border:1px solid var(--line);background:var(--surface-3);color:var(--text);padding:11px 16px;border-radius:12px;font-size:12px;font-weight:700;transition:.18s}
+    .btn:hover{transform:translateY(-1px);border-color:rgba(201,169,110,.38)}
+    .btn.primary{background:linear-gradient(135deg,#d8bb84,#b9955b);border-color:transparent;color:#17130d}
+    .btn.ghost{background:transparent;color:var(--muted)}
+    .btn.danger{color:var(--danger);border-color:rgba(224,120,120,.22);background:rgba(224,120,120,.06)}
+    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+    .result{border:1px solid rgba(201,169,110,.2);background:rgba(201,169,110,.055);border-radius:16px;padding:16px;min-width:0}
+    .result-label{font-size:10px;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;font-weight:700;margin-bottom:8px}
+    .result-value{font-size:13px;line-height:1.6;overflow-wrap:anywhere;color:#e8e5de}
+    .result-actions{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}
+    .hidden{display:none!important}
+    .gallery-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .upload-box{border:1px dashed rgba(201,169,110,.35);background:rgba(201,169,110,.035);border-radius:20px;min-height:270px;display:grid;place-items:center;text-align:center;padding:22px;position:relative}
+    .upload-box input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+    .upload-inner{pointer-events:none}
+    .upload-inner svg{color:var(--gold);margin-bottom:12px}
+    .upload-inner strong{display:block;font:600 14px "Manrope",sans-serif}
+    .upload-inner span{display:block;color:var(--muted);font-size:11px;margin-top:7px}
+    .preview{width:100%;max-height:280px;object-fit:contain;border-radius:13px;margin-top:15px;background:#08090a}
+    .gallery-info{display:flex;flex-direction:column;gap:14px}
+    .create-grid{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:24px;align-items:start}
+    label{display:block;font-size:11px;color:#c4c2bc;font-weight:600;margin-bottom:9px}
+    textarea{width:100%;min-height:124px;resize:vertical;background:#0b0d0f;border:1px solid var(--line);border-radius:14px;padding:15px;color:var(--text);outline:none;font-size:13px;line-height:1.6}
+    textarea:focus{border-color:rgba(201,169,110,.55);box-shadow:0 0 0 3px rgba(201,169,110,.07)}
+    .field-note{color:var(--muted);font-size:11px;line-height:1.5;margin:9px 0 17px}
+    .qr-output{background:#f7f5ef;border-radius:20px;min-height:290px;display:grid;place-items:center;padding:20px;color:#111;position:relative}
+    #qrcode canvas,#qrcode img{display:block;max-width:100%;height:auto!important}
+    .qr-empty{text-align:center;color:#6e6b64;font-size:12px;line-height:1.6}
+    .qr-empty svg{display:block;margin:0 auto 10px;opacity:.5}
+    .history{margin-top:30px;border-top:1px solid var(--line);padding-top:24px}
+    .history-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+    .history-head h3{font:600 14px "Manrope",sans-serif;margin:0}
+    .history-list{display:flex;flex-direction:column;gap:9px}
+    .history-item{display:grid;grid-template-columns:54px minmax(0,1fr) auto;gap:13px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:15px;padding:10px 12px}
+    .history-thumb{width:54px;height:54px;background:#f7f5ef;border-radius:9px;display:grid;place-items:center;overflow:hidden}
+    .history-thumb img{width:100%;height:100%;object-fit:contain}
+    .history-thumb .mini-qr{width:37px;height:37px}
+    .history-meta{min-width:0}
+    .history-meta strong{font-size:12px;display:block;margin-bottom:5px}
+    .history-meta span{display:block;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .history-actions{display:flex;gap:5px}
+    .icon-btn{width:32px;height:32px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--muted);display:grid;place-items:center}
+    .icon-btn:hover{color:var(--gold-bright);border-color:rgba(201,169,110,.3)}
+    .empty-history{text-align:center;padding:24px;color:var(--muted);font-size:12px;border:1px dashed var(--line);border-radius:14px}
+    .tip{margin-top:18px;border:1px solid rgba(201,169,110,.15);background:rgba(201,169,110,.04);padding:13px 15px;border-radius:13px;color:#aaa69c;font-size:11px;line-height:1.6}
+    .tip b{color:var(--gold-bright);font-weight:600}
+    .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#e6d0a8;color:#17130d;padding:11px 16px;border-radius:11px;font-size:12px;font-weight:700;box-shadow:0 10px 35px #0008;transition:.25s;z-index:50}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    footer{text-align:center;color:#656970;font-size:10px;letter-spacing:.08em;margin-top:25px}
+    @media(max-width:720px){.camera-layout,.gallery-grid,.create-grid{grid-template-columns:1fr}.scanner-wrap{min-height:270px}.qr-output{min-height:250px}.side-card{gap:12px}}
+    @media(max-width:460px){.shell{width:min(100% - 22px,1050px);padding-top:20px}.brand-name{font-size:15px}.status{font-size:10px}.tabs{padding:8px;gap:3px}.tab{font-size:11px;padding:12px 5px}.tab svg{margin-right:3px;width:14px}.panel{padding:17px}.section-head{margin-bottom:17px}.history-item{grid-template-columns:44px minmax(0,1fr) auto;gap:9px;padding:9px}.history-thumb{width:44px;height:44px}.history-actions .icon-btn{width:29px;height:29px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-label="AURA QR geometric logo">
+          <svg width="29" height="29" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path d="M3.5 3.5h10v10h-10zM18.5 3.5h10v10h-10zM3.5 18.5h10v10h-10z" stroke="#D8BB84" stroke-width="2"/>
+            <path d="M7 7h3v3H7zM22 7h3v3h-3zM7 22h3v3H7z" fill="#D8BB84"/>
+            <path d="M18.5 18.5h4v4h-4zM24.5 24.5h4v4h-4zM25 18.5h3.5M18.5 25h3.5" stroke="#D8BB84" stroke-width="1.8" stroke-linecap="square"/>
+          </svg>
+        </div>
+        <div><div class="brand-name">AURA QR</div><div class="brand-tag">Scan · Create · Connect</div></div>
+      </div>
+      <div class="status"><span class="status-dot"></span> Your QR workspace</div>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">A little clarity in every connection</div>
+      <h1>Make every scan<br>feel effortless.</h1>
+      <p>Scan codes, decode images, or create a QR of your own — all in one quiet, considered workspace.</p>
+    </section>
+
+    <section class="app-card">
+      <nav class="tabs" aria-label="Main sections">
+        <button class="tab active" data-tab="camera" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h3l2-3h6l2 3h3v13H4z"/><circle cx="12" cy="13" r="4"/></svg>Camera</button>
+        <button class="tab" data-tab="gallery" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>Gallery</button>
+        <button class="tab" data-tab="create" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM19 14h2v7h-7v-2"/></svg>Create</button>
+      </nav>
+
+      <section class="panel active" id="camera-panel">
+        <div class="section-head"><div><h2>Live scanner</h2><p class="sub">Point your camera at a QR code to read it instantly.</p></div></div>
+        <div class="camera-layout">
+          <div class="scanner-wrap">
+            <div id="reader">
+              <div class="scan-placeholder" id="camera-placeholder">
+                <div class="scan-icon"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7V4a1 1 0 0 1 1-1h3M17 3h3a1 1 0 0 1 1 1v3M21 17v3a1 1 0 0 1-1 1h-3M7 21H4a1 1 0 0 1-1-1v-3"/><path d="M7 7h4v4H7zM15 7h2v2h-2zM7 15h2v2H7zM14 14h3v3h-3z"/></svg></div>
+                <strong>Your camera, ready when you are</strong><span>Start the camera and hold a QR code inside the frame.</span>
+              </div>
+            </div>
+          </div>
+          <aside class="side-card">
+            <div><h3>Camera controls</h3><p>Camera access requires a secure browser context (HTTPS or localhost) and permission from your device.</p></div>
+            <div class="button-row"><button class="btn primary" id="start-camera" type="button">Start camera</button><button class="btn" id="stop-camera" type="button" disabled>Stop</button></div>
+            <div class="result hidden" id="camera-result"><div class="result-label">Decoded result</div><div class="result-value" id="camera-value"></div><div class="result-actions"><button class="btn" id="camera-copy" type="button">Copy</button><button class="btn hidden" id="camera-open" type="button">Open link</button></div></div>
+            <p id="camera-status" aria-live="polite">Camera is currently stopped.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="panel" id="gallery-panel">
+        <div class="section-head"><div><h2>Scan from gallery</h2><p class="sub">Choose an image that contains a QR code. We'll do the decoding.</p></div></div>
+        <div class="gallery-grid">
+          <div>
+            <label for="image-file">Select an image</label>
+            <div class="upload-box" id="upload-box">
+              <input id="image-file" type="file" accept="image/*" aria-label="Choose an image from your gallery">
+              <div class="upload-inner" id="upload-inner">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m-4 4 4-4 4 4"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg>
+                <strong>Tap to choose an image</strong><span>JPG, PNG, WEBP and other image formats</span>
+              </div>
+              <img class="preview hidden" id="image-preview" alt="Selected image preview">
+            </div>
+          </div>
+          <div class="gallery-info">
+            <div class="side-card"><h3>Image decoder</h3><p>We'll use your browser's native BarcodeDetector when available, then try the html5-qrcode image scanner as a fallback.</p><button class="btn primary" id="scan-image" type="button" disabled>Scan image</button><p id="gallery-status" aria-live="polite">Select an image to begin.</p></div>
+            <div class="result hidden" id="gallery-result"><div class="result-label">Decoded result</div><div class="result-value" id="gallery-value"></div><div class="result-actions"><button class="btn" id="gallery-copy" type="button">Copy</button><button class="btn hidden" id="gallery-open" type="button">Open link</button></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="create-panel">
+        <div class="section-head"><div><h2>Create a QR code</h2><p class="sub">Turn a link, note, or any text into a clean, shareable QR code.</p></div></div>
+        <div class="create-grid">
+          <div>
+            <label for="qr-input">Your URL or text</label>
+            <textarea id="qr-input" placeholder="https://example.com or write something..."></textarea>
+            <p class="field-note">Tip: include https:// for web links. Your QR is generated on this page.</p>
+            <div class="button-row"><button class="btn primary" id="generate-qr" type="button">Generate QR</button><button class="btn" id="download-qr" type="button" disabled>Download PNG</button></div>
+          </div>
+          <div class="qr-output"><div id="qrcode"><div class="qr-empty"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM19 14h2v7h-7v-2"/></svg>Your QR code will appear here.</div></div></div>
+        </div>
+        <div class="history">
+          <div class="history-head"><h3>Your history <span id="history-count" style="color:var(--muted);font-weight:400">(0)</span></h3><button class="btn danger" id="clear-history" type="button">Clear history</button></div>
+          <div class="history-list" id="history-list"><div class="empty-history">Your created and scanned codes will appear here.</div></div>
+        </div>
+      </section>
+    </section>
+
+    <div class="tip"><b>Quick tip</b> — Mobile code-runner WebViews (including some app previews such as OneCompiler) can block camera permissions or file pickers. For full camera and gallery access, host this file over HTTPS (for example, GitHub Pages) and open it in a full browser.</div>
+    <footer>AURA QR · PRIVATE BY DESIGN · YOUR CODES STAY IN THIS BROWSER WHEN STORAGE IS AVAILABLE</footer>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    (() => {
+      "use strict";
+      const $ = (id) => document.getElementById(id);
+      let scanner = null, selectedFile = null, generatedValue = "", currentQrData = "";
+      let historyItems = [];
+      const STORAGE_KEY = "aura-qr-history-v1";
+
+      function safeReadHistory() {
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed.filter(x => x && typeof x.value === "string") : [];
+        } catch (err) {
+          console.warn("AURA QR: browser storage unavailable.", err);
+          return [];
+        }
+      }
+      function safeWriteHistory() {
+        try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(historyItems)); return true; }
+        catch (err) { console.warn("AURA QR: could not save history.", err); return false; }
+      }
+      function toast(message) {
+        const node = $("toast");
+        if (!node) return;
+        node.textContent = message;
+        node.classList.add("show");
+        clearTimeout(toast.timer);
+        toast.timer = setTimeout(() => node.classList.remove("show"), 2400);
+      }
+      function isUrl(value) {
+        try { const u = new URL(value); return u.protocol === "http:" || u.protocol === "https:" || u.protocol === "mailto:"; }
+        catch (_) { return false; }
+      }
+      function safeOpen(value) {
+        if (!isUrl(value)) return;
+        window.open(value, "_blank", "noopener,noreferrer");
+      }
+      async function copyText(value) {
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(value);
+            toast("Copied to clipboard");
+            return;
+          }
+        } catch (err) { console.warn("Clipboard API unavailable.", err); }
+        try {
+          const field = document.createElement("textarea");
+          field.value = value; field.setAttribute("readonly", "");
+          field.style.position = "fixed"; field.style.opacity = "0";
+          document.body.appendChild(field); field.select();
+          const ok = document.execCommand && document.execCommand("copy");
+          field.remove();
+          toast(ok ? "Copied to clipboard" : "Copy isn't available here");
+        } catch (err) { console.warn("Copy fallback failed.", err); toast("Copy isn't available here"); }
+      }
+      function addHistory(value, type, imageData) {
+        const item = { id: Date.now().toString(36) + Math.random().toString(36).slice(2,7), value, type, createdAt: new Date().toISOString(), image: imageData || "" };
+        historyItems.unshift(item);
+        historyItems = historyItems.slice(0, 60);
+        const saved = safeWriteHistory();
+        renderHistory();
+        if (!saved) toast("Added for this session; browser storage is unavailable");
+      }
+      function renderHistory() {
+        const list = $("history-list"), count = $("history-count");
+        if (!list || !count) return;
+        count.textContent = "(" + historyItems.length + ")";
+        list.replaceChildren();
+        if (!historyItems.length) {
+          const empty = document.createElement("div"); empty.className = "empty-history"; empty.textContent = "Your created and scanned codes will appear here."; list.appendChild(empty); return;
+        }
+        historyItems.forEach(item => {
+          const row = document.createElement("div"); row.className = "history-item";
+          const thumb = document.createElement("div"); thumb.className = "history-thumb";
+          if (item.image) { const img = document.createElement("img"); img.src = item.image; img.alt = "QR code"; thumb.appendChild(img); }
+          else { thumb.innerHTML = '<svg class="mini-qr" viewBox="0 0 32 32" fill="none" stroke="#28251e" stroke-width="2"><path d="M3 3h10v10H3zM19 3h10v10H19zM3 19h10v10H3zM19 19h4v4h-4zM26 19h3v10h-10v-3"/></svg>'; }
+          const meta = document.createElement("div"); meta.className = "history-meta";
+          const title = document.createElement("strong"); title.textContent = item.type === "created" ? "Created QR" : "Scanned QR";
+          const value = document.createElement("span"); value.textContent = item.value;
+          meta.append(title, value);
+          const actions = document.createElement("div"); actions.className = "history-actions";
+          const copy = document.createElement("button"); copy.className = "icon-btn"; copy.type = "button"; copy.title = "Copy"; copy.setAttribute("aria-label","Copy history item"); copy.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>'; copy.addEventListener("click", () => copyText(item.value));
+          const del = document.createElement("button"); del.className = "icon-btn"; del.type = "button"; del.title = "Delete"; del.setAttribute("aria-label","Delete history item"); del.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 14h12l1-14M9 7V4h6v3"/></svg>'; del.addEventListener("click", () => { historyItems = historyItems.filter(x => x.id !== item.id); safeWriteHistory(); renderHistory(); toast("History item deleted"); });
+          actions.append(copy, del);
+          if (isUrl(item.value)) { const open = document.createElement("button"); open.className = "icon-btn"; open.type = "button"; open.title = "Open link"; open.setAttribute("aria-label","Open history link"); open.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 3h7v7M10 14 21 3"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>'; open.addEventListener("click", () => safeOpen(item.value)); actions.appendChild(open); }
+          row.append(thumb, meta, actions); list.appendChild(row);
+        });
+      }
+      function showResult(prefix, value) {
+        const result = $(prefix + "-result"), output = $(prefix + "-value"), open = $(prefix + "-open");
+        if (!result || !output) return;
+        output.textContent = value; result.classList.remove("hidden");
+        if (open) { open.classList.toggle("hidden", !isUrl(value)); }
+        addHistory(value, "scanned");
+      }
+      function bindResultButtons(prefix) {
+        $(prefix + "-copy")?.addEventListener("click", () => copyText($(prefix + "-value").textContent));
+        $(prefix + "-open")?.addEventListener("click", () => safeOpen($(prefix + "-value").textContent));
+      }
+      function switchTab(name) {
+        document.querySelectorAll(".tab").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === name));
+        document.querySelectorAll(".panel").forEach(panel => panel.classList.toggle("active", panel.id === name + "-panel"));
+        if (name !== "camera" && scanner) stopCamera();
+      }
+      async function startCamera() {
+        const status = $("camera-status");
+        if (!window.Html5Qrcode) { status.textContent = "Scanner library didn't load. Check your internet connection and reload."; return; }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          status.textContent = "Camera access isn't available in this browser context. An iframe or WebView sandbox may block camera permissions. Open this page over HTTPS in a full browser.";
+          toast("Camera unavailable in this WebView");
+          return;
+        }
+        try {
+          if (!scanner) scanner = new Html5Qrcode("reader");
+          $("camera-placeholder")?.classList.add("hidden");
+          $("start-camera").disabled = true;
+          await scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 240, height: 240 }, aspectRatio: 1 }, (decodedText) => {
+            showResult("camera", decodedText);
+            status.textContent = "QR code detected.";
+          }, () => {});
+          $("stop-camera").disabled = false;
+          status.textContent = "Camera is live. Hold a QR code in view.";
+        } catch (err) {
+          console.error(err);
+          $("camera-placeholder")?.classList.remove("hidden");
+          $("start-camera").disabled = false;
+          $("stop-camera").disabled = true;
+          const message = String(err && (err.message || err));
+          status.textContent = /permission|denied|notallowed|security|iframe/i.test(message)
+            ? "Camera permission was blocked. Some iframe/WebView previews don't allow camera access. Host over HTTPS and open in Chrome, Safari, or another full browser."
+            : "Couldn't start the camera. Check permissions, ensure no other app is using it, and try again.";
+        }
+      }
+      async function stopCamera() {
+        if (scanner) {
+          try { if (scanner.isScanning) await scanner.stop(); } catch (err) { console.warn("Scanner stop:", err); }
+          try { await scanner.clear(); } catch (err) { console.warn("Scanner clear:", err); }
+          scanner = null;
+        }
+        $("start-camera").disabled = false;
+        $("stop-camera").disabled = true;
+        $("camera-placeholder")?.classList.remove("hidden");
+        if ($("camera-status")) $("camera-status").textContent = "Camera is currently stopped.";
+      }
+      async function decodeImage(file) {
+        if (!file) return;
+        const status = $("gallery-status");
+        status.textContent = "Scanning image…";
+        $("scan-image").disabled = true;
+        try {
+          if ("BarcodeDetector" in window) {
+            try {
+              const detector = new BarcodeDetector({ formats: ["qr_code"] });
+              let source = file;
+              if (window.createImageBitmap) source = await createImageBitmap(file);
+              const codes = await detector.detect(source);
+              if (source !== file && source.close) source.close();
+              if (codes && codes.length && codes[0].rawValue) {
+                showResult("gallery", codes[0].rawValue);
+                status.textContent = "QR code found using your browser's native scanner.";
+                return;
+              }
+            } catch (nativeErr) { console.warn("BarcodeDetector unavailable for this image; trying fallback.", nativeErr); }
+          }
+          if (window.Html5Qrcode) {
+            const tempId = "aura-file-scanner-" + Date.now();
+            const holder = document.createElement("div"); holder.id = tempId; holder.className = "hidden"; document.body.appendChild(holder);
+            const fileScanner = new Html5Qrcode(tempId);
+            try {
+              const decoded = await fileScanner.scanFile(file, false);
+              showResult("gallery", decoded);
+              status.textContent = "QR code found.";
+            } finally {
+              try { await fileScanner.clear(); } catch (_) {}
+              holder.remove();
+            }
+            return;
+          }
+          status.textContent = "No compatible image scanner is available. Check your connection and reload.";
+        } catch (err) {
+          console.warn("Image scan:", err);
+          status.textContent = "No QR code was detected in this image. Try a clearer, well-lit image with the full code visible.";
+        } finally { $("scan-image").disabled = !selectedFile; }
+      }
+      function makeQr(value) {
+        const target = $("qrcode");
+        if (!window.QRCode) { toast("QR generator library didn't load. Check your connection."); return; }
+        target.replaceChildren();
+        try {
+          new QRCode(target, { text: value, width: 220, height: 220, colorDark: "#111111", colorLight: "#f7f5ef", correctLevel: QRCode.CorrectLevel.H });
+          generatedValue = value;
+          $("download-qr").disabled = false;
+          setTimeout(() => {
+            const canvas = target.querySelector("canvas");
+            const img = target.querySelector("img");
+            try { currentQrData = canvas ? canvas.toDataURL("image/png") : (img ? img.src : ""); }
+            catch (err) { currentQrData = ""; console.warn("Could not export QR image.", err); }
+            addHistory(value, "created", currentQrData);
+          }, 80);
+        } catch (err) { console.error(err); toast("Couldn't generate that QR code."); }
+      }
+      function downloadQr() {
+        const target = $("qrcode");
+        const canvas = target.querySelector("canvas");
+        const img = target.querySelector("img");
+        let data = "";
+        try { data = canvas ? canvas.toDataURL("image/png") : (img ? img.src : ""); } catch (_) {}
+        if (!data) { toast("Generate a QR code first."); return; }
+        const link = document.createElement("a"); link.href = data; link.download = "aura-qr.png";
+        document.body.appendChild(link); link.click(); link.remove();
+      }
+
+      function init() {
+        historyItems = safeReadHistory();
+        renderHistory();
+        document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => switchTab(btn.dataset.tab)));
+        $("start-camera")?.addEventListener("click", startCamera);
+        $("stop-camera")?.addEventListener("click", stopCamera);
+        bindResultButtons("camera"); bindResultButtons("gallery");
+        $("image-file")?.addEventListener("change", (event) => {
+          const file = event.target.files && event.target.files[0];
+          if (!file) return;
+          if (!file.type.startsWith("image/")) { toast("Please choose an image file."); return; }
+          selectedFile = file;
+          const preview = $("image-preview");
+          try { preview.src = URL.createObjectURL(file); preview.classList.remove("hidden"); $("upload-inner").classList.add("hidden"); }
+          catch (err) { console.warn(err); }
+          $("scan-image").disabled = false;
+          $("gallery-result").classList.add("hidden");
+          $("gallery-status").textContent = "Image ready. Select Scan image.";
+        });
+        $("scan-image")?.addEventListener("click", () => decodeImage(selectedFile));
+        $("generate-qr")?.addEventListener("click", () => {
+          const value = $("qr-input").value.trim();
+          if (!value) { toast("Enter a URL or some text first."); $("qr-input").focus(); return; }
+          makeQr(value);
+        });
+        $("download-qr")?.addEventListener("click", downloadQr);
+        $("clear-history")?.addEventListener("click", () => {
+          if (!historyItems.length) { toast("History is already empty."); return; }
+          if (window.confirm("Clear all AURA QR history?")) { historyItems = []; safeWriteHistory(); renderHistory(); toast("History cleared"); }
+        });
+        window.addEventListener("beforeunload", () => { if (scanner && scanner.isScanning) scanner.stop().catch(() => {}); });
+      }
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
+      else init();
+    })();
+  </script>
+</body>
+</html>
